@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mapa de Alcaldías CDMX</title>
+  <link rel="stylesheet" href="estilo.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+  <h2>Alcaldías de la Ciudad de México</h2>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+
+	/*
+	 * Descripción: Muestra un mapa de la Ciudad de México
+	 * y dibuja los límites de sus alcaldías usando GeoJSON.
+	 * Entrada: Archivo alcaldias.geojson.
+	 * Salida: Mapa interactivo con polígonos y nombres.
+	 */
+
+	/*
+	 * L.map(id).setView(centro, zoom)
+	 * Descripción: Crea el mapa y establece su vista inicial.
+	 * Parámetros:
+	 *   id: Identificador del elemento HTML.
+	 *   centro: Coordenadas [latitud, longitud].
+	 *   zoom: Nivel de acercamiento.
+	 */
+	const map = L.map('map').setView([19.4326, -99.1332], 10);
+
+	/*
+	 * L.tileLayer(url, opciones)
+	 * Descripción: Agrega la capa topográfica al mapa.
+	 * Parámetros:
+	 *   url: Dirección del servidor de mapas.
+	 *   opciones: Configuración y atribución.
+	 * addTo(map): Incorpora la capa al mapa.
+	 */
+	L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+	  attribution: '&copy; OpenStreetMap contributors'
+	}).addTo(map);
+
+	/*
+	 * fetch(url)
+	 * Descripción: Solicita un archivo GeoJSON al servidor.
+	 * Entrada: Ruta del archivo alcaldias.geojson.
+	 * Salida: Promesa con la respuesta del servidor.
+	 */
+	fetch('alcaldias.geojson')
+
+	  /*
+	   * then(callback)
+	   * Descripción: Procesa la respuesta del servidor.
+	   * Entrada: response, respuesta HTTP.
+	   * Salida: Promesa con los datos convertidos a JSON.
+	   */
+	  .then(response => response.json())
+
+	  /*
+	   * Descripción: Dibuja los elementos GeoJSON en el mapa.
+	   * Entrada: data, información geográfica.
+	   * Salida: Polígonos de las alcaldías.
+	   */
+	  .then(data => {
+
+	    /*
+	     * L.geoJSON(data, opciones)
+	     * Descripción: Representa datos geográficos en el mapa.
+	     * Parámetros:
+	     *   data: Objeto GeoJSON.
+	     *   opciones: Estilos y eventos de los elementos.
+	     */
+	    L.geoJSON(data, {
+
+		// Configuración visual de los polígonos.
+		style: {
+		  color: '#2563eb',      // Color del contorno.
+		  weight: 2,             // Grosor del contorno.
+		  fillColor: '#93c5fd',  // Color de relleno.
+		  fillOpacity: 0.4       // Transparencia del relleno.
+		},
+
+		/*
+		 * onEachFeature(feature, layer)
+		 * Descripción: Asocia un mensaje a cada alcaldía.
+		 * Parámetros:
+		 *   feature: Elemento geográfico con sus propiedades.
+		 *   layer: Capa gráfica asociada al elemento.
+		 * Salida: Ventana emergente con el nombre.
+		 */
+		onEachFeature: function(feature, layer) {
+
+		  // Obtiene el nombre o asigna uno predeterminado.
+		  const nombre = feature.properties.nomgeo || "Alcaldía";
+
+		  // Asocia el nombre a una ventana emergente.
+		  layer.bindPopup(`<strong>${nombre}</strong>`);
+		}
+
+	    }).addTo(map);
+	  })
+
+	  /*
+	   * catch(callback)
+	   * Descripción: Captura errores al cargar o procesar datos.
+	   * Entrada: error, objeto con información del problema.
+	   * Salida: Mensaje en la consola del navegador.
+	   */
+	  .catch(error => {
+	    console.error("Error al cargar el GeoJSON:", error);
+	  });
+
+  </script>
+</body>
+</html>
+

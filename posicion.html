@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mapa con Geolocalización</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    #map {
+      height: 400px;
+      width: 100%;
+      margin: 20px auto;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f0f4ff;
+    }
+    h2 {
+      color: #2563eb;
+    }
+  </style>
+</head>
+<body>
+  <h2>Tu ubicación en el mapa</h2>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+
+/*
+ * Descripción: Obtiene la ubicación del usuario y la
+ * muestra en un mapa interactivo utilizando Leaflet.
+ * Entrada: Permiso del usuario para acceder a su ubicación.
+ * Salida: Mapa centrado en la ubicación con un marcador.
+ */
+
+// Verifica si el navegador soporta geolocalización.
+if ("geolocation" in navigator) {
+
+  /*
+   * getCurrentPosition(exito, error)
+   * Descripción: Solicita la ubicación actual del usuario.
+   * Parámetros:
+   *   exito: Función que recibe la posición obtenida.
+   *   error: Función que recibe información del error.
+   */
+  navigator.geolocation.getCurrentPosition(
+    function(position) {
+
+      // Obtiene las coordenadas geográficas.
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+
+      /*
+       * L.map(id).setView(centro, zoom)
+       * Descripción: Crea y configura el mapa.
+       * Parámetros:
+       *   id: Identificador del elemento HTML.
+       *   centro: Coordenadas [latitud, longitud].
+       *   zoom: Nivel de acercamiento (13).
+       */
+      const map = L.map('map').setView([lat, lon], 13);
+
+      /*
+       * L.tileLayer(url, opciones)
+       * Descripción: Agrega la capa visual del mapa.
+       * Parámetros:
+       *   url: Dirección de las imágenes del mapa.
+       *   opciones: Atribución y zoom máximo.
+       * addTo(map): Incorpora la capa al mapa.
+       */
+
+      // Capa alternativa: OpenStreetMap.
+      // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      //   attribution: '&copy; OpenStreetMap contributors'
+      // }).addTo(map);
+
+      // Capa topográfica: OpenTopoMap (https://opentopomap.org/).
+      L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        attribution: 'Map data: &copy; OpenStreetMap contributors, SRTM | Map style: &copy; OpenTopoMap (CC-BY-SA)',
+        maxZoom: 17
+      }).addTo(map);
+
+      /*
+       * L.marker(coordenadas)
+       * Descripción: Crea un marcador en el mapa.
+       * Parámetro:
+       *   coordenadas: [latitud, longitud].
+       * addTo(map): Agrega el marcador al mapa.
+       * bindPopup(texto): Asocia un mensaje al marcador.
+       * openPopup(): Muestra el mensaje.
+       */
+      L.marker([lat, lon])
+        .addTo(map)
+        .bindPopup("¡Estás aquí!")
+        .openPopup();
+
+    },
+
+    /*
+     * Descripción: Maneja errores de geolocalización.
+     * Entrada: error, objeto con detalles del problema.
+     * Salida: Mensaje de alerta al usuario.
+     */
+    function(error) {
+      alert("No se pudo obtener tu ubicación: " + error.message);
+    }
+  );
+
+} else {
+  // El navegador no dispone de la API de geolocalización.
+  alert("Tu navegador no soporta geolocalización.");
+}
+
+  </script>
+</body>
+</html>
+
